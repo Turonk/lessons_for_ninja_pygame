@@ -1,7 +1,10 @@
+"""
+Простая игра на Pygame: Анимации + отдельный класс для загрузки ресурсов
++ метательное оружие, отскок от стен, подбор, спрайты
+"""
+
 import pygame
 import sys
-import math
-import random
 
 # Инициализация Pygame
 pygame.init()
@@ -42,10 +45,10 @@ class AssetLoader:
         return pygame.transform.scale(image, (width, height))
 
     def load_all(self):
-        """Загружаем все спрайты для игры"""
         self.sprites["player_idle"] = self.load_image("assets/idle.png", PLAYER_SIZE, PLAYER_SIZE)
         self.sprites["player_walk"] = self.load_image("assets/walk.png", PLAYER_SIZE, PLAYER_SIZE)
         self.sprites["player_jump"] = self.load_image("assets/jump.png", PLAYER_SIZE, PLAYER_SIZE)
+        # Обнови размер под 24x24
         self.sprites["projectile"] = self.load_image("assets/projectile.png", 24, 24)
 
     def get(self, name):
@@ -63,7 +66,7 @@ class Player:
         self.vel_y = 0
         self.is_jumping = False
         self.direction = "right"
-        self.assets = assets
+        self.assets = assets  # Получаем загрузчик
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def move(self, direction):
@@ -108,6 +111,7 @@ class Player:
         else:
             self.current_sprite = self.assets.get("player_idle")
 
+        # Поворот спрайта
         if self.direction == "left":
             self.flipped_sprite = pygame.transform.flip(self.current_sprite, True, False)
         else:
@@ -117,7 +121,8 @@ class Player:
         surface.blit(self.flipped_sprite, (self.x, self.y))
 
 
-# ===== Класс: Снаряд — сюрикен с рикошетом =====
+# ===== Класс: Снаряд =====
+# ===== Класс: Снаряд — корректные отскоки от всех стен =====
 class Projectile:
     def __init__(self, x, y, target_pos, assets, speed=10):
         self.rect = pygame.Rect(x, y, 24, 24)
@@ -125,65 +130,59 @@ class Projectile:
         self.active = True
         self.stuck = False
 
+        # Направление полёта
         direction = pygame.math.Vector2(target_pos[0] - x, target_pos[1] - y)
         if direction.length() > 0:
             self.velocity = direction.normalize() * speed
         else:
             self.velocity = pygame.math.Vector2(0, 0)
 
-        self.hit_surface = False
-        self.gravity = 0.6
+        self.hit_surface = False  # Ударился о стену/потолок
+        self.gravity = 0.6        # Включится после удара
 
-    def update(self, ground_y, enemies):
+    def update(self, ground_y):
         if self.stuck or not self.active:
             return
 
+        # === Полёт до удара: без гравитации ===
         if not self.hit_surface:
-            # Двигаем снаряд
+            # Предикат движения — где будет снаряд на следующем кадре
+            next_x = self.rect.x + self.velocity.x
+            next_y = self.rect.y + self.velocity.y
+
+            # Проверяем коллизии ДО перемещения
+            if next_x <= 0 or next_x + self.rect.width >= SCREEN_WIDTH:
+                # Удар о левую или правую стену
+                self.velocity.x = -self.velocity.x * 0.3  # Слабый отскок
+                self.hit_surface = True
+
+            if next_y <= 0:
+                # Удар о потолок
+                self.velocity.y = abs(self.velocity.y) * 0.3  # Небольшой импульс вниз
+                self.hit_surface = True
+
+            # Обновляем позицию
             self.rect.x += self.velocity.x
             self.rect.y += self.velocity.y
 
-            # Проверка на попадание во врага
-            for enemy in enemies[:]:
-                if self.rect.colliderect(enemy.rect):
-                    # Убиваем врага
-                    enemies.remove(enemy)
+            # Дополнительная фиксация — не дать уйти за границы
+            if self.rect.left < 0:
+                self.rect.left = 0
+            if self.rect.right > SCREEN_WIDTH:
+                self.rect.right = SCREEN_WIDTH
 
-                    # Рикошет: отскакиваем в противоположную сторону
-                    if abs(self.velocity.x) > abs(self.velocity.y):
-                        self.velocity.x *= -0.4  # Отскок по горизонтали
-                    else:
-                        self.velocity.y *= -0.4  # Отскок по вертикали
-
-                    self.hit_surface = True  # После удара — начинаем падать
-                    break  # Только одно столкновение за раз
-
-            # Отскок от стен
-            if self.rect.left <= 0:
-                self.velocity.x *= -0.4
-                self.hit_surface = True
-
-            if self.rect.right >= SCREEN_WIDTH:
-                self.velocity.x *= -0.4
-                self.hit_surface = True
-
-            # Отскок от потолка
-            if self.rect.top <= 0:
-                self.velocity.y *= -0.4
-                self.hit_surface = True
-
-            # Попадание в землю
+            # Попадание в землю — сразу застреваем
             if self.rect.bottom >= ground_y:
                 self.rect.bottom = ground_y
                 self.stuck = True
 
-        # После удара — падение
+        # === После удара: падение ===
         if self.hit_surface and not self.stuck:
             self.velocity.y += self.gravity
             self.rect.x += self.velocity.x
             self.rect.y += self.velocity.y
 
-            # Постепенное затухание скорости
+            # Затухание горизонтальной скорости
             if abs(self.velocity.x) > 0.1:
                 self.velocity.x *= 0.92
             else:
@@ -216,44 +215,6 @@ class Projectile:
         self.velocity = pygame.math.Vector2(0, 0)
 
 
-# ===== Класс: Враг =====
-class Enemy:
-    def __init__(self, x, y, enemy_type="walker"):
-        self.rect = pygame.Rect(x, y, 40, 40)
-        self.type = enemy_type  # "walker" или "flyer"
-        self.speed = 2 if enemy_type == "walker" else 1.5
-        self.health = 1
-        self.direction = 1  # 1 = вправо, -1 = влево
-
-        self.fly_offset = 0
-        self.fly_angle = 0
-
-    def update(self, player_x, player_y, ground_y):
-        if self.rect.x < player_x:
-            self.direction = 1
-        else:
-            self.direction = -1
-
-        self.rect.x += self.speed * self.direction
-
-        if self.type == "walker":
-            self.rect.y = ground_y - self.rect.height
-        else:
-            self.fly_angle += 0.1
-            self.fly_offset = math.sin(self.fly_angle) * 15
-            self.rect.y = player_y + self.fly_offset - 20
-            self.rect.y = max(50, min(self.rect.y, ground_y - self.rect.height))
-
-    def draw(self, surface):
-        if self.type == "walker":
-            pygame.draw.rect(surface, (200, 0, 0), self.rect)  # Красный квадрат
-        else:
-            pygame.draw.circle(surface, (100, 100, 255), self.rect.center, 20)  # Синий круг
-
-    def is_off_screen(self):
-        return self.rect.right < -50 or self.rect.left > SCREEN_WIDTH + 50
-
-
 # ===== Инициализация =====
 asset_loader = AssetLoader()
 player = Player(x=100, y=GROUND_Y - PLAYER_SIZE, assets=asset_loader)
@@ -261,15 +222,6 @@ player = Player(x=100, y=GROUND_Y - PLAYER_SIZE, assets=asset_loader)
 # Снаряды
 projectiles = []
 max_projectiles = 3
-
-# Жизни
-player_lives = 3
-lives_font = pygame.font.SysFont("Arial", 30)
-
-# Враги
-enemies = []
-spawn_timer = 0
-spawn_delay = 180  # Каждые 3 секунды (60 FPS)
 
 # ===== Основной цикл =====
 clock = pygame.time.Clock()
@@ -290,7 +242,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 player.jump()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Левая кнопка мыши
+            if event.button == 1:  # ЛКМ
                 active_count = len([p for p in projectiles if p.active])
                 if active_count < max_projectiles:
                     pos = player.x + PLAYER_SIZE // 2, player.y + PLAYER_SIZE // 2
@@ -304,66 +256,24 @@ while running:
     if keys[pygame.K_RIGHT]:
         player.move("right")
 
-    # Логика игрока
+    # Логика
     player.apply_gravity()
     player.update_animation()
 
     # Обновление снарядов
+    mouse_buttons = pygame.mouse.get_pressed()
     player_rect = pygame.Rect(player.x, player.y, player.width, player.height)
 
     for projectile in projectiles:
-        projectile.update(GROUND_Y, enemies)  # Передаём enemies!
+        projectile.update(GROUND_Y)
         projectile.draw(screen)
 
-        # Подбор, если застрял
+        # Автоподбор при касании (без клика!)
         if projectile.stuck and projectile.is_close_to_player(player_rect):
-            projectile.reset()
-
-    # Спавн врагов
-    spawn_timer += 1
-    if spawn_timer >= spawn_delay:
-        spawn_timer = 0
-        side = random.choice(["left", "right"])
-        enemy_type = random.choice(["walker", "flyer"])
-
-        if enemy_type == "walker":
-            y = GROUND_Y - 40
-        else:
-            y = random.randint(100, GROUND_Y - 100)
-
-        x = -40 if side == "left" else SCREEN_WIDTH + 40
-        enemies.append(Enemy(x, y, enemy_type))
-
-    # Обновление врагов
-    for enemy in enemies[:]:
-        enemy.update(player.x, player.y, GROUND_Y)
-        enemy.draw(screen)
-
-        # Столкновение с игроком
-        if enemy.rect.colliderect(player.rect):
-            # Отталкивание
-            knockback = 50 if enemy.type == "walker" else 30
-            player.x += knockback * (-1 if player.direction == "right" else 1)
-            player.x = max(0, min(player.x, SCREEN_WIDTH - player.width))
-
-            # Потеря жизни
-            player_lives -= 1
-            enemies.remove(enemy)
-
-            if player_lives <= 0:
-                print("Игра окончена!")
-                running = False
-
-        # Удаление ушедших за экран
-        if enemy.is_off_screen():
-            enemies.remove(enemy)
+            projectile.reset()  # Подобрали!
 
     # Отрисовка игрока
     player.draw(screen)
-
-    # Отображение жизней
-    lives_text = lives_font.render(f"Жизни: {player_lives}", True, (0, 0, 0))
-    screen.blit(lives_text, (10, 10))
 
     pygame.display.flip()
 
