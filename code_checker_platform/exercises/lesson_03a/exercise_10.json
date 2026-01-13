@@ -1,0 +1,51 @@
+{
+    "title": "Задание 10: Работа со списками",
+    "description": "Создай список чисел, добавь в него элементы, удали элементы, отсортируй и найди максимальное/минимальное значения.",
+    "hint": "Используй методы: append(), remove(), sort(). Для поиска максимума/минимума используй функции max()/min() или циклы.",
+    "example": "# Создай список чисел\nscores = [85, 92, 78, 95, 88]\n\nprint(f\"Исходный список: {scores}\")\nprint(f\"Количество элементов: {len(scores)}\")\n\n# Добавь новые оценки\nscores.append(90)\nscores.append(76)\nprint(f\"После добавления: {scores}\")\n\n# Удали плохую оценку\nif 76 in scores:\n    scores.remove(76)\nprint(f\"После удаления 76: {scores}\")\n\n# Отсортируй по возрастанию\nscores.sort()\nprint(f\"Отсортированный: {scores}\")\n\n# Найди максимум и минимум\nmax_score = max(scores)\nmin_score = min(scores)\nprint(f\"Максимум: {max_score}, Минимум: {min_score}\")\n\n# Посчитай среднюю оценку\ntotal = sum(scores)\naverage = total / len(scores)\nprint(f\"Средняя оценка: {average:.1f}\")\n\n# Создай список отличников (90+)\nexcellent = []\nfor score in scores:\n    if score >= 90:\n        excellent.append(score)\nprint(f\"Отличные оценки: {excellent}\")",
+    "tests": [
+        {
+            "type": "variable",
+            "variable": "scores",
+            "expected": [78, 85, 88, 90, 92, 95],
+            "description": "Список scores должен быть отсортирован и содержать правильные оценки"
+        },
+        {
+            "type": "variable",
+            "variable": "max_score",
+            "expected": 95,
+            "description": "Переменная max_score должна быть равна 95"
+        },
+        {
+            "type": "variable",
+            "variable": "min_score",
+            "expected": 78,
+            "description": "Переменная min_score должна быть равна 78"
+        },
+        {
+            "type": "variable",
+            "variable": "excellent",
+            "expected": [90, 92, 95],
+            "description": "Список excellent должен содержать оценки >= 90"
+        },
+        {
+            "type": "contains",
+            "expected": "Исходный список: [85, 92, 78, 95, 88]",
+            "description": "Вывод должен показать исходный список"
+        },
+        {
+            "type": "contains",
+            "expected": "Максимум: 95, Минимум: 78",
+            "description": "Вывод должен показать максимум и минимум"
+        },
+        {
+            "type": "contains",
+            "expected": "Средняя оценка:",
+            "description": "Вывод должен содержать среднюю оценку"
+        },
+        {
+            "type": "no_error",
+            "description": "Код должен выполняться без ошибок"
+        }
+    ]
+}

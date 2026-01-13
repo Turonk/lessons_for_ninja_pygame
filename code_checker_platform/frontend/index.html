@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка заданий Python</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐍 Проверка заданий Python</h1>
+            <p>Напиши код и проверь правильность выполнения!</p>
+        </header>
+
+        <div class="exercise-selector">
+            <label for="lesson-select">Урок:</label>
+            <select id="lesson-select">
+                <option value="lesson_03a">Урок 3A: Выстрел в сторону мышки</option>
+                <option value="lesson_03b">Урок 3B: Физика снарядов</option>
+                <option value="lesson_04a">Урок 4A: Враги - спавн</option>
+                <option value="lesson_04b">Урок 4B: Взаимодействие с врагами</option>
+            </select>
+
+            <label for="exercise-select">Задание:</label>
+            <select id="exercise-select">
+                <option value="6">Задание 6: Переменные и изменения значений</option>
+                <option value="7">Задание 7: Циклы for с числами и текстом</option>
+                <option value="8">Задание 8: Условия if/elif/else с оценками</option>
+                <option value="9">Задание 9: Класс Кошка с методами</option>
+                <option value="10">Задание 10: Операции со списками оценок</option>
+            </select>
+
+            <button onclick="loadExercise()">Загрузить задание</button>
+        </div>
+
+        <div class="exercise-info" id="exercise-info">
+            <h2 id="exercise-title">Выбери задание</h2>
+            <div id="exercise-description"></div>
+            <div class="hint" id="exercise-hint"></div>
+            <details>
+                <summary>💡 Пример решения</summary>
+                <pre id="exercise-example"></pre>
+            </details>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-header">
+                <span>📝 Твой код:</span>
+                <button onclick="runCode()">▶️ Проверить</button>
+            </div>
+            <textarea id="code-editor"></textarea>
+        </div>
+
+        <div class="results" id="results">
+            <h3>Результаты проверки:</h3>
+            <div id="results-content"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="static/app.js"></script>
+</body>
+</html>
+

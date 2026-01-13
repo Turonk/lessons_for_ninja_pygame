@@ -1,0 +1,52 @@
+{
+    "title": "Задание 9: Простой класс",
+    "description": "Создай класс 'Кошка' с методами. Создай несколько объектов этого класса и вызови их методы.",
+    "hint": "Класс должен иметь __init__ для имени и возраста, и методы meow() для мяуканья, info() для информации. Создай 2-3 кошки.",
+    "example": "class Cat:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n        self.is_hungry = True\n    \n    def meow(self):\n        print(f\"{self.name} говорит: Мяу!\")\n    \n    def feed(self):\n        self.is_hungry = False\n        print(f\"{self.name} покормлена!\")\n    \n    def info(self):\n        status = \"голодная\" if self.is_hungry else \"сытая\"\n        print(f\"{self.name}, {self.age} года, {status}\")\n\n# Создай кошек\nmurka = Cat(\"Мурка\", 3)\nbarsik = Cat(\"Барсик\", 5)\n\n# Вызови методы\nmurka.info()\nmurka.meow()\nmurka.feed()\nmurka.info()\n\nbarsik.info()\nbarsik.feed()\nbarsik.meow()",
+    "tests": [
+        {
+            "type": "contains",
+            "expected": "class Cat:",
+            "description": "Код должен содержать определение класса Cat"
+        },
+        {
+            "type": "contains",
+            "expected": "def __init__",
+            "description": "Класс должен иметь метод __init__"
+        },
+        {
+            "type": "contains",
+            "expected": "def meow",
+            "description": "Класс должен иметь метод meow"
+        },
+        {
+            "type": "contains",
+            "expected": "def feed",
+            "description": "Класс должен иметь метод feed"
+        },
+        {
+            "type": "contains",
+            "expected": "def info",
+            "description": "Класс должен иметь метод info"
+        },
+        {
+            "type": "contains",
+            "expected": "Мурка говорит: Мяу!",
+            "description": "Должно быть мяуканье Мурки"
+        },
+        {
+            "type": "contains",
+            "expected": "Мурка покормлена!",
+            "description": "Должно быть сообщение о кормлении Мурки"
+        },
+        {
+            "type": "contains",
+            "expected": "Барсик говорит: Мяу!",
+            "description": "Должно быть мяуканье Барсика"
+        },
+        {
+            "type": "no_error",
+            "description": "Код должен выполняться без ошибок"
+        }
+    ]
+}

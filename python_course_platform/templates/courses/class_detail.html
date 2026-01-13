@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Класс: {{ class_obj.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Заголовок и действия -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>👥 {{ class_obj.name }}</h2>
+                <p class="text-muted">{{ class_obj.description }}</p>
+            </div>
+            {% if user.is_admin %}
+                <div>
+                    <a href="{% url 'courses:class_update' class_obj.pk %}" class="btn btn-outline-primary">
+                        ✏️ Редактировать класс
+                    </a>
+                    <a href="{% url 'courses:class_student_manage' class_obj.pk %}" class="btn btn-success">
+                        👨‍🎓 ➕ Добавить ученика
+                    </a>
+                    <a href="{% url 'courses:class_delete' class_obj.pk %}" class="btn btn-outline-danger"
+                       onclick="return confirm('Вы уверены, что хотите удалить класс? Ученики останутся в системе, но потеряют связь с классом.')">
+                        🗑️ Удалить класс
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <!-- Статистика класса -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📊 Статистика класса</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h3 class="text-primary">{{ students|length }}</h3>
+                                <p class="small">Учеников</p>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-success">{{ available_topics|length }}</h3>
+                                <p class="small">Доступных тем</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="small text-muted">
+                            <strong>Создан:</strong> {{ class_obj.created_at|date:"d.m.Y" }}<br>
+                            <strong>Создал:</strong> {{ class_obj.created_by.get_full_name|default:class_obj.created_by.username }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Доступные темы -->
+            <div class="col-md-8 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>📚 Доступные темы</h5>
+                        {% if user.is_admin %}
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#topicAccessModal">
+                                ⚙️ Управлять доступом
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if available_topics %}
+                            <div class="row">
+                                {% for topic in available_topics %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">{{ topic.title }}</h6>
+                                                <p class="card-text small">{{ topic.description|truncatechars:100 }}</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-info">{{ topic.active_tasks_count }} заданий</span>
+                                                    <a href="{% url 'courses:topic_detail' topic.pk %}" class="btn btn-sm btn-outline-primary">
+                                                        Просмотр
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">Нет доступных тем</p>
+                                <small class="text-muted">Обратитесь к администратору для открытия доступа к темам</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Студенты класса -->
+        <div class="card">
+            <div class="card-header">
+                <h5>👨‍🎓 Ученики класса</h5>
+            </div>
+            <div class="card-body">
+                {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>Email</th>
+                                    <th>Дата регистрации</th>
+                                    <th>Последний вход</th>
+                                    {% if user.is_admin and students_progress %}
+                                        <th>Выполнено заданий</th>
+                                        <th>Прогресс</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.get_full_name|default:student.username }}</td>
+                                        <td>{{ student.email }}</td>
+                                        <td>{{ student.date_joined|date:"d.m.Y" }}</td>
+                                        <td>{{ student.last_login|date:"d.m.Y H:i" }}</td>
+                                        {% if user.is_admin %}
+                                            <td>{{ student.completed_tasks|length }}</td>
+                                            <td>
+                                                {% if student.completed_tasks %}
+                                                    <div class="progress" style="width: 100px;">
+                                                        {% if total_available_tasks > 0 %}
+                                                            {% with completed_count=student.completed_tasks|length %}
+                                                                {% widthratio completed_count total_available_tasks 100 as progress_percent %}
+                                                                <div class="progress-bar" role="progressbar"
+                                                                     style="width: {{ progress_percent }}%"
+                                                                     aria-valuenow="{{ progress_percent }}"
+                                                                     aria-valuemin="0" aria-valuemax="100">
+                                                                    {{ completed_count }}/{{ total_available_tasks }}
+                                                                </div>
+                                                            {% endwith %}
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">В классе пока нет учеников</p>
+                        {% if user.is_admin %}
+                            <a href="{% url 'courses:student_create' %}" class="btn btn-success">
+                                ➕ Добавить первого ученика
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно управления доступом к темам -->
+{% if user.is_admin %}
+<div class="modal fade" id="topicAccessModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">⚙️ Управление доступом к темам</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Отметьте темы, к которым должен быть открыт доступ для этого класса:</p>
+                <form id="topicAccessForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="class_id" value="{{ class_obj.pk }}">
+                    {% for topic in all_topics %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="topic_{{ topic.pk }}" name="topics" value="{{ topic.pk }}"
+                                {% if topic in available_topics %}checked{% endif %}>
+                            <label class="form-check-label" for="topic_{{ topic.pk }}">
+                                <strong>{{ topic.title }}</strong>
+                                <br><small class="text-muted">{{ topic.description|truncatechars:150 }}</small>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="saveTopicAccess()">💾 Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveTopicAccess() {
+    const form = document.getElementById('topicAccessForm');
+    const formData = new FormData(form);
+
+    fetch('{% url "courses:save_topic_access" class_obj.pk %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Ошибка при сохранении: ' + (data.error || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при сохранении');
+    });
+}
+</script>
+{% endif %}
+
+{% endblock %}

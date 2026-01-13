@@ -1,0 +1,137 @@
+[
+    {
+        "model": "courses.topic",
+        "pk": 1,
+        "fields": {
+            "title": "Переменные",
+            "description": "Учимся создавать и использовать переменные - контейнеры для хранения данных",
+            "order": 1,
+            "theory_content": "# Переменные в Python\r\n\r\nПеременная - это имя, которое ссылается на какое-то значение.\r\n\r\n## Создание переменных\r\n```python\r\n# Числовые переменные\r\nage = 12\r\nheight = 150.5\r\n\r\n# Строковые переменные\r\nname = \"Анна\"\r\ncity = 'Москва'\r\n\r\n# Логические переменные\r\nis_student = True\r\nhas_homework = False\r\n\r\n# Списки\r\nfruits = [\"яблоко\", \"банан\", \"апельсин\"]\r\nnumbers = [1, 2, 3, 4, 5]\r\n```\r\n\r\n## Использование переменных\r\n```python\r\n# Вывод на экран\r\nprint(f\"Привет, {name}!\")\r\nprint(f\"Тебе {age} лет.\")\r\n\r\n# Математические операции\r\nnext_year = age + 1\r\nhalf_height = height / 2\r\n\r\n# Работа со списками\r\nfirst_fruit = fruits[0]  # 'яблоко'\r\nfruits.append(\"груша\")  # Добавляем элемент\r\n```\r\n\r\n## Правила именования переменных\r\n- Начинаются с буквы или подчёркивания\r\n- Содержат только буквы, цифры и подчёркивания\r\n- Не являются ключевыми словами Python\r\n- Чувствительны к регистру (name ≠ Name)",
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.task",
+        "pk": 1,
+        "fields": {
+            "topic": 1,
+            "title": "Создание переменных",
+            "description": "Создай переменные разных типов: число, строку, список и логическое значение. Выведи их на экран.",
+            "hint": "Используй print() для вывода. Помни про разные типы данных в Python.",
+            "example_code": "# Создай переменные\r\nage = 12\r\nname = \"Игрок\"\r\ncolors = [\"красный\", \"синий\"]\r\nis_active = True\r\n\r\n# Выведи их\r\nprint(f\"Имя: {name}\")\r\nprint(f\"Возраст: {age}\")\r\nprint(f\"Цвета: {colors}\")\r\nprint(f\"Активен: {is_active}\")",
+            "order": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 1,
+        "fields": {
+            "task": 1,
+            "test_type": "variable",
+            "variable_name": "age",
+            "expected_value": 12,
+            "description": "Переменная age должна равняться 12",
+            "order": 1
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 2,
+        "fields": {
+            "task": 1,
+            "test_type": "variable",
+            "variable_name": "name",
+            "expected_value": "Игрок",
+            "description": "Переменная name должна содержать 'Игрок'",
+            "order": 2
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 3,
+        "fields": {
+            "task": 1,
+            "test_type": "variable",
+            "variable_name": "colors",
+            "expected_value": ["красный", "синий"],
+            "description": "Список colors должен содержать цвета",
+            "order": 3
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 4,
+        "fields": {
+            "task": 1,
+            "test_type": "variable",
+            "variable_name": "is_active",
+            "expected_value": true,
+            "description": "Переменная is_active должна быть True",
+            "order": 4
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 5,
+        "fields": {
+            "task": 1,
+            "test_type": "contains",
+            "expected_value": "Имя:",
+            "description": "Вывод должен содержать 'Имя:'",
+            "order": 5
+        }
+    },
+    {
+        "model": "courses.task",
+        "pk": 2,
+        "fields": {
+            "topic": 1,
+            "title": "Изменение переменных",
+            "description": "Создай переменные, затем измени их значения и добавь новые элементы в список.",
+            "hint": "Сначала создай переменные, потом измени их (увеличь число, добавь элемент в список).",
+            "example_code": "# Создай начальные переменные\r\nscore = 85\r\nitems = [\"меч\"]\r\n\r\n# Измени их\r\nscore = score + 15  # Стало 100\r\nitems.append(\"щит\")  # Добавили щит\r\n\r\nprint(f\"Новый счёт: {score}\")\nprint(f\"Предметы: {items}\")",
+            "order": 2,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 6,
+        "fields": {
+            "task": 2,
+            "test_type": "variable",
+            "variable_name": "score",
+            "expected_value": 100,
+            "description": "Переменная score должна быть 100 после увеличения",
+            "order": 1
+        }
+    },
+    {
+        "model": "courses.testcase",
+        "pk": 7,
+        "fields": {
+            "task": 2,
+            "test_type": "variable",
+            "variable_name": "items",
+            "expected_value": ["меч", "щит"],
+            "description": "Список items должен содержать меч и щит",
+            "order": 2
+        }
+    },
+    {
+        "model": "courses.topic",
+        "pk": 2,
+        "fields": {
+            "title": "Циклы for",
+            "description": "Изучаем циклы - повторение действий для каждого элемента в коллекции",
+            "order": 2,
+            "theory_content": "# Циклы for в Python\r\n\r\nЦикл for позволяет выполнять одни и те же действия для каждого элемента в коллекции.\r\n\r\n## Простой цикл по списку\r\n```python\r\nfruits = [\"яблоко\", \"банан\", \"апельсин\"]\r\n\r\nfor fruit in fruits:\r\n    print(f\"Мне нравится {fruit}\")\r\n```\r\n\r\n## Цикл с range()\r\n```python\r\n# От 0 до 4\r\nfor i in range(5):\r\n    print(f\"Число: {i}\")\r\n\r\n# От 1 до 10\r\nfor i in range(1, 11):\r\n    print(f\"Число: {i}\")\r\n\r\n# С шагом 2\r\nfor i in range(0, 10, 2):\r\n    print(f\"Чётное: {i}\")\r\n```\r\n\r\n## Цикл с enumerate() - нумерация\r\n```python\r\nstudents = [\"Анна\", \"Борис\", \"Вера\"]\r\n\r\nfor number, student in enumerate(students, 1):\r\n    print(f\"{number}. {student}\")\r\n```\r\n\r\n## Сумма элементов в цикле\r\n```python\r\ntotal = 0\r\nnumbers = [10, 20, 30, 40]\r\n\r\nfor num in numbers:\r\n    total = total + num\r\n\r\nprint(f\"Сумма: {total}\")\r\n```\r\n\r\n## Цикл по строке\r\n```python\r\nword = \"Python\"\r\n\r\nfor letter in word:\r\n    print(f\"Буква: {letter}\")\r\n```",
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    }
+]

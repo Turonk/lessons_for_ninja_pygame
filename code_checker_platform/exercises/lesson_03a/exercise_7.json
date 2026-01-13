@@ -1,0 +1,46 @@
+{
+    "title": "Задание 7: Цикл for с числами и текстом",
+    "description": "Создай список чисел и список имён. Выведи каждый элемент с помощью цикла for. Добавь счётчик итераций.",
+    "hint": "Используй range() для чисел и enumerate() для добавления номеров. Не забудь f-строки для красивого вывода.",
+    "example": "# Создай списки\nnumbers = [5, 10, 15, 20, 25]\nnames = [\"Анна\", \"Борис\", \"Вера\"]\n\n# Выведи числа с номерами\nprint(\"Числа:\")\nfor i, num in enumerate(numbers, 1):\n    print(f\"{i}. Число: {num}\")\n\n# Выведи имена\nprint(\"\\nИмена:\")\nfor name in names:\n    print(f\"Привет, {name}!\")\n\n# Посчитай сумму чисел\ntotal = 0\nfor num in numbers:\n    total = total + num\nprint(f\"\\nСумма всех чисел: {total}\")",
+    "tests": [
+        {
+            "type": "variable",
+            "variable": "numbers",
+            "expected": [5, 10, 15, 20, 25],
+            "description": "Список numbers должен содержать [5, 10, 15, 20, 25]"
+        },
+        {
+            "type": "variable",
+            "variable": "names",
+            "expected": ["Анна", "Борис", "Вера"],
+            "description": "Список names должен содержать [\"Анна\", \"Борис\", \"Вера\"]"
+        },
+        {
+            "type": "variable",
+            "variable": "total",
+            "expected": 75,
+            "description": "Переменная total должна быть равна сумме чисел (75)"
+        },
+        {
+            "type": "contains",
+            "expected": "Числа:",
+            "description": "Вывод должен содержать заголовок 'Числа:'"
+        },
+        {
+            "type": "contains",
+            "expected": "Привет, Анна!",
+            "description": "Вывод должен содержать приветствие для Анны"
+        },
+        {
+            "type": "contains",
+            "expected": "Сумма всех чисел: 75",
+            "description": "Вывод должен показать сумму чисел"
+        },
+        {
+            "type": "no_error",
+            "description": "Код должен выполняться без ошибок"
+        }
+    ]
+}
+

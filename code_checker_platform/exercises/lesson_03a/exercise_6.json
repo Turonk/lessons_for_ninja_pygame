@@ -1,0 +1,52 @@
+{
+    "title": "Задание 6: Работа с переменными",
+    "description": "Создай три переменные с разными типами данных и выведи их на экран. Добавь ещё одну переменную и измени значение существующей.",
+    "hint": "Сначала создай переменные, затем выведи их, потом добавь новый цвет в список и увеличь возраст на 1.",
+    "example": "# Создай переменные\nage = 12\nname = \"Игрок\"\ncolors = [\"красный\", \"синий\", \"зелёный\"]\nis_active = True\n\n# Выведи их\nprint(f\"Имя: {name}, Возраст: {age}\")\nprint(f\"Цвета: {colors}\")\nprint(f\"Активен: {is_active}\")\n\n# Измени значения\nage = age + 1\ncolors.append(\"жёлтый\")\nis_active = False\n\n# Выведи изменённые значения\nprint(f\"Новый возраст: {age}\")\nprint(f\"Все цвета: {colors}\")\nprint(f\"Активен сейчас: {is_active}\")",
+    "tests": [
+        {
+            "type": "variable",
+            "variable": "age",
+            "expected": 13,
+            "description": "Переменная age должна быть равна 13 (изначально 12, потом +1)"
+        },
+        {
+            "type": "variable",
+            "variable": "name",
+            "expected": "Игрок",
+            "description": "Переменная name должна быть строкой \"Игрок\""
+        },
+        {
+            "type": "variable",
+            "variable": "colors",
+            "expected": ["красный", "синий", "зелёный", "жёлтый"],
+            "description": "Список colors должен содержать 4 цвета с добавленным 'жёлтый'"
+        },
+        {
+            "type": "variable",
+            "variable": "is_active",
+            "expected": false,
+            "description": "Переменная is_active должна быть False (изначально True, потом изменена)"
+        },
+        {
+            "type": "contains",
+            "expected": "Имя: Игрок, Возраст: 12",
+            "description": "Вывод должен содержать исходные значения"
+        },
+        {
+            "type": "contains",
+            "expected": "Новый возраст: 13",
+            "description": "Вывод должен показать увеличенный возраст"
+        },
+        {
+            "type": "contains",
+            "expected": "жёлтый",
+            "description": "В выводе должен появиться новый цвет"
+        },
+        {
+            "type": "no_error",
+            "description": "Код должен выполняться без ошибок"
+        }
+    ]
+}
+

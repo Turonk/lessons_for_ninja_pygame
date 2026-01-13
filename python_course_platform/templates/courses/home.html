@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white rounded p-4 mb-4">
+            <h1 class="display-4">Добро пожаловать в курс Python!</h1>
+            <p class="lead">
+                Изучай программирование на Python через интерактивные задания и практические упражнения.
+            </p>
+            {% if user.is_student %}
+                <p>Ты ученик класса: <strong>{{ user.student_class.name }}</strong></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.is_student %}
+    <!-- Доступные темы для ученика -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">📚 Доступные темы</h2>
+
+            {% if available_topics %}
+                <div class="row">
+                    {% for topic in available_topics %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card progress-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ topic.title }}</h5>
+                                    <p class="card-text">{{ topic.description|truncatechars:100 }}</p>
+
+                                    {% if topic.progress_info.total > 0 %}
+                                        {% widthratio topic.progress_info.completed topic.progress_info.total 100 as progress_percent %}
+                                        <div class="progress mb-3">
+                                            <div class="progress-bar" role="progressbar"
+                                                 style="width: {{ progress_percent }}%"
+                                                 aria-valuenow="{{ progress_percent }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ topic.progress_info.completed }}/{{ topic.progress_info.total }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <a href="{% url 'courses:topic_detail' topic.pk %}" class="btn btn-primary">
+                                        Изучить тему
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <h4>🎓 Темы пока недоступны</h4>
+                    <p>Твой преподаватель скоро откроет доступ к первым темам курса.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Прогресс ученика -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="mb-4">📊 Твой прогресс</h2>
+
+            {% if student_progress %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            {% for progress in student_progress %}
+                                {% if progress.status == 'completed' %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card bg-success text-white">
+                                            <div class="card-body text-center">
+                                                <h5>{{ progress.task.title }}</h5>
+                                                <span class="badge bg-light text-dark">{{ progress.best_score }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% elif user.is_admin %}
+    <!-- Панель администратора -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">⚙️ Панель администратора</h2>
+
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>👥 Классы</h5>
+                            <p>Управление классами и учениками</p>
+                            <a href="{% url 'courses:class_list' %}" class="btn btn-primary">Управлять</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>📚 Темы</h5>
+                            <p>Управление темами курса</p>
+                            <a href="{% url 'courses:topic_list' %}" class="btn btn-primary">Управлять</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>📊 Прогресс</h5>
+                            <p>Просмотр прогресса учеников</p>
+                            <a href="{% url 'courses:progress' %}" class="btn btn-primary">Просмотреть</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>⚙️ Админка</h5>
+                            <p>Django admin панель</p>
+                            <a href="/admin/" class="btn btn-secondary" target="_blank">Открыть</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <h3>📈 Статистика</h3>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4>{{ managed_classes|length }}</h4>
+                                    <p>Классов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4>{{ all_topics|length }}</h4>
+                                    <p>Тем</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h4>{% for class in managed_classes %}{{ class.students.count }}{% if not forloop.last %} + {% endif %}{% endfor %}</h4>
+                                    <p>Учеников</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

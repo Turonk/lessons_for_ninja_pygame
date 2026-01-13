@@ -1,0 +1,251 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #667eea;
+}
+
+header h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.exercise-selector {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.exercise-selector label {
+    font-weight: bold;
+    color: #333;
+}
+
+.exercise-selector select {
+    padding: 10px 15px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 1em;
+    background: white;
+    cursor: pointer;
+}
+
+.exercise-selector button {
+    padding: 10px 25px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.exercise-selector button:hover {
+    background: #5568d3;
+}
+
+.exercise-info {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f0f4ff;
+    border-radius: 10px;
+    border-left: 5px solid #667eea;
+}
+
+.exercise-info h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.exercise-info #exercise-description {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.hint {
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+    margin-top: 15px;
+    color: #856404;
+}
+
+.hint::before {
+    content: "💡 Подсказка: ";
+    font-weight: bold;
+}
+
+details {
+    margin-top: 15px;
+}
+
+details summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #667eea;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+}
+
+details pre {
+    margin-top: 10px;
+    padding: 15px;
+    background: #282c34;
+    color: #abb2bf;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+}
+
+.editor-container {
+    margin-bottom: 30px;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.editor-header span {
+    font-weight: bold;
+    color: #333;
+}
+
+.editor-header button {
+    padding: 8px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.editor-header button:hover {
+    background: #218838;
+}
+
+.CodeMirror {
+    border: 2px solid #667eea;
+    border-radius: 0 0 8px 8px;
+    height: 400px;
+    font-size: 16px;
+}
+
+.results {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    min-height: 100px;
+}
+
+.results h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+#results-content {
+    color: #555;
+}
+
+.test-result {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border-left: 5px solid;
+}
+
+.test-result.passed {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.test-result.failed {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.test-result .test-description {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.test-result .test-message {
+    margin-top: 5px;
+}
+
+.summary {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.summary.success {
+    background: #d4edda;
+    color: #155724;
+    border: 2px solid #28a745;
+}
+
+.summary.failure {
+    background: #f8d7da;
+    color: #721c24;
+    border: 2px solid #dc3545;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #667eea;
+    font-size: 1.1em;
+}
+
