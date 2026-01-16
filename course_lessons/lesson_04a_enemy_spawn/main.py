@@ -38,21 +38,62 @@ SPAWN_DELAY = 180  # Задержка между появлением враго
 # 180 кадров = 3 секунды (при 60 кадрах в секунду)
 
 
+class AssetLoader:
+    def __init__(self):
+        self.sprites = {}
+        self.load_all()
+
+    def load_image(self, path, width, height):
+        """Загружает изображение или возвращает заглушку"""
+        try:
+            image = pygame.image.load(path).convert_alpha()
+        except (FileNotFoundError, pygame.error):
+            print(f"Файл не найден: {path}. Создаём заглушку.")
+            image = pygame.Surface((width, height), pygame.SRCALPHA)
+            pygame.draw.rect(image, (100, 100, 100), (5, 5, width - 10, height - 10), border_radius=8)
+            pygame.draw.circle(image, (255, 255, 255), (15, 15), 5)  # Глазик
+        return pygame.transform.scale(image, (width, height))
+
+    def load_all(self):
+        """Загружаем все спрайты для игры"""
+        self.sprites["player_idle"] = self.load_image("assets/idle.png", PLAYER_SIZE, PLAYER_SIZE)
+        self.sprites["player_walk"] = self.load_image("assets/walk.png", PLAYER_SIZE, PLAYER_SIZE)
+        self.sprites["player_jump"] = self.load_image("assets/jump.png", PLAYER_SIZE, PLAYER_SIZE)
+        self.sprites["projectile"] = self.load_image("assets/projectile.png", 24, 24)
+
+    def get(self, name):
+        """Возвращает спрайт по имени"""
+        return self.sprites.get(name, None)
+
+
+# ===== Класс: Игрок =====
 class Player:
-    def __init__(self, x, y):
+    def __init__(self, x, y, assets):
         self.x = x
         self.y = y
         self.width = PLAYER_SIZE
         self.height = PLAYER_SIZE
         self.vel_y = 0
         self.is_jumping = False
+        self.direction = "right"
+        self.assets = assets
+        
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def move_horizontal(self, direction):
+    def move(self, direction):
         if direction == "left":
             self.x -= PLAYER_SPEED
+            self.direction = "left"
         elif direction == "right":
             self.x += PLAYER_SPEED
-        self.x = max(0, min(self.x, SCREEN_WIDTH - self.width))
+            self.direction = "right"
+
+        if self.x < 0:
+            self.x = 0
+        if self.x > SCREEN_WIDTH - self.width:
+            self.x = SCREEN_WIDTH - self.width
+
+        self.rect.x = self.x
 
     def jump(self):
         if not self.is_jumping:
@@ -62,17 +103,32 @@ class Player:
     def apply_gravity(self):
         self.vel_y += GRAVITY
         self.y += self.vel_y
+
         if self.y >= GROUND_Y - self.height:
             self.y = GROUND_Y - self.height
             self.vel_y = 0
             self.is_jumping = False
 
-    def draw(self, surface):
-        pygame.draw.rect(surface, (50, 150, 255), (self.x, self.y, self.width, self.height))
+        self.rect.y = self.y
 
-    @property
-    def rect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+    def update_animation(self):
+        keys = pygame.key.get_pressed()
+        moving = keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
+
+        if self.is_jumping:
+            self.current_sprite = self.assets.get("player_jump")
+        elif moving:
+            self.current_sprite = self.assets.get("player_walk")
+        else:
+            self.current_sprite = self.assets.get("player_idle")
+
+        if self.direction == "left":
+            self.flipped_sprite = pygame.transform.flip(self.current_sprite, True, False)
+        else:
+            self.flipped_sprite = self.current_sprite
+
+    def draw(self, surface):
+        surface.blit(self.flipped_sprite, (self.x, self.y))
 
 
 class Enemy:
@@ -156,7 +212,8 @@ class Enemy:
 # ============================================
 # СОЗДАНИЕ ИГРОВЫХ ОБЪЕКТОВ
 # ============================================
-player = Player(x=100, y=GROUND_Y - PLAYER_SIZE)
+asset_loader = AssetLoader()
+player = Player(x=100, y=GROUND_Y - PLAYER_SIZE, assets=asset_loader)
 enemies = []  # Список всех врагов на экране
 spawn_timer = 0  # Таймер для отсчёта времени до следующего спавна
 clock = pygame.time.Clock()
@@ -184,9 +241,9 @@ while running:
     # ============================================
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        player.move_horizontal("left")
+        player.move("left")
     if keys[pygame.K_RIGHT]:
-        player.move_horizontal("right")
+        player.move("right")
 
     player.apply_gravity()
 
@@ -249,6 +306,7 @@ while running:
     # ОТРИСОВКА
     # ============================================
     pygame.draw.line(screen, RED, (0, GROUND_Y), (SCREEN_WIDTH, GROUND_Y), 3)
+    player.update_animation()
     player.draw(screen)
     
     # Показываем количество врагов на экране
