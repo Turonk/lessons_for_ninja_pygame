@@ -22,28 +22,19 @@ class Enemy:
         self.y = y
         self.width = ENEMY_WIDTH
         self.height = ENEMY_HEIGHT
-        self.speed = ENEMY_SPEED
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def move_towards_player(self, player_x):
-        """Двигает врага в направлении игрока по оси X"""
-        if self.x < player_x:
-            # Игрок справа, двигаемся вправо
-            self.x += self.speed
-        elif self.x > player_x:
-            # Игрок слева, двигаемся влево
-            self.x -= self.speed
-
-        # Ограничение движения в пределах экрана (враг не должен уходить за края)
-        if self.x < -self.width:
-            self.x = -self.width
-        if self.x > SCREEN_WIDTH:
-            self.x = SCREEN_WIDTH
-
-    def is_off_screen(self):
-        """Проверяет, ушел ли враг за пределы экрана"""
-        return self.x < -self.width or self.x > SCREEN_WIDTH
-
+    def move(self, direction):
+        if direction == "left":
+            self.x -= ENEMY_SPEED
+        elif direction == "right":
+            self.x += ENEMY_SPEED
+        
+        if self.x < 0:
+            self.x = 0
+        if self.x > SCREEN_WIDTH - self.width:
+            self.x = SCREEN_WIDTH - self.width
+    
     def position_update(self):
         self.rect.topleft = (self.x, self.y)
 

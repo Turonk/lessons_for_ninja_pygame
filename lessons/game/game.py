@@ -113,50 +113,23 @@ class Player:
 asset_loader = AssetLoader()
 player = Player(x=100, y=GROUND_Y - PLAYER_SIZE, assets=asset_loader)
 
-# Функция для создания нового врага за пределами экрана
-def spawn_enemy():
-    # Случайно выбираем сторону спавна (слева или справа)
-    side = random.choice(["left", "right"])
-    if side == "left":
-        x = -ENEMY_WIDTH  # За левым краем экрана
-    else:
-        x = SCREEN_WIDTH  # За правым краем экрана
-
-    y = GROUND_Y - ENEMY_HEIGHT  # На уровне земли
-    return Enemy(x, y)
-
-enemy = spawn_enemy()
+enemy = Enemy(x=0, y=SCREEN_HEIGHT - ENEMY_HEIGHT - 100)
+enemy_direction = "right"
 
 clock = pygame.time.Clock()
 running = True
-game_over = False
-
-def check_collision(rect1, rect2):
-    """Проверяет столкновение между двумя прямоугольниками"""
-    return rect1.colliderect(rect2)
 
 while running:
-    clock.tick(60)
+    clock.tick(60)  
     screen.fill(WHITE)
     pygame.draw.line(screen, RED, (0, GROUND_Y), (SCREEN_WIDTH, GROUND_Y), 3)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not game_over:
-                player.jump()
-            elif event.key == pygame.K_r and game_over:
-                # Перезапуск игры
-                game_over = False
-                player.x = 100
-                player.y = GROUND_Y - PLAYER_SIZE
-                player.vel_y = 0
-                player.is_jumping = False
-                enemy = spawn_enemy()
-            elif event.key == pygame.K_ESCAPE:
-                running = False
+        
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            player.jump()
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -164,46 +137,19 @@ while running:
     if keys[pygame.K_RIGHT]:
         player.move("right")
 
-    # Обновляем игрока только если игра не окончена
-    if not game_over:
-        player.apply_gravity()
-        player.update_animation()
-
-        # Враг двигается к игроку по оси X
-        enemy.move_towards_player(player.x)
-        enemy.position_update()
-
-        # Если враг ушел за пределы экрана, создаем нового
-        if enemy.is_off_screen():
-            enemy = spawn_enemy()
-
-        # Проверяем столкновение между игроком и врагом
-        if check_collision(player.rect, enemy.rect):
-            game_over = True
-
-    # Рисуем спрайты
+    player.apply_gravity()
+    player.update_animation()
     player.draw(screen)
+
+    if enemy.x >= SCREEN_WIDTH - ENEMY_WIDTH:
+            enemy_direction = "left"
+    elif enemy.x <= 0:
+        enemy_direction = "right"
+    
+    enemy.move(enemy_direction)
+    enemy.position_update()
     enemy.draw(screen)
 
-    # Если игра окончена, показываем сообщение
-    if game_over:
-        # Создаем полупрозрачный фон
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))  # Черный с прозрачностью 180
-        screen.blit(overlay, (0, 0))
 
-        # Настраиваем шрифт для сообщения
-        font = pygame.font.Font(None, 74)  # Размер шрифта 74
-        game_over_text = font.render("ИГРА ОКОНЧЕНА!", True, WHITE)
-
-        # Центрируем текст
-        text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-        screen.blit(game_over_text, text_rect)
-
-        # Добавляем подсказку для перезапуска
-        small_font = pygame.font.Font(None, 36)
-        restart_text = small_font.render("Нажмите R для перезапуска или ESC для выхода", True, WHITE)
-        restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
-        screen.blit(restart_text, restart_rect)
 
     pygame.display.flip()
