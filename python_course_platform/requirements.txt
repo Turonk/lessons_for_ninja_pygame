@@ -1,5 +1,0 @@
-Django>=4.2
-djangorestframework>=3.14.0
-pytest>=7.4.0
-RestrictedPython>=8.1
-django-mathfilters>=1.0.0

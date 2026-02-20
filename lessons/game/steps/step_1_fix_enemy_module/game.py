@@ -2,7 +2,7 @@ import pygame
 import random
 from enemy import Enemy, ENEMY_HEIGHT, ENEMY_WIDTH, SPAWN_DELAY
 
-DEBUG = False # Изменять только самостоятельно
+DEBUG = False
 
 # Константы экрана
 pygame.init()
@@ -28,6 +28,7 @@ PROJECTILE_SPEED = 10
 MAX_COUNT_PROJECTILES = 3
 PICUP_DISTANCE = 40
 
+
 class AssetLoader:
     def __init__(self):
         self.sprites = {}
@@ -41,7 +42,7 @@ class AssetLoader:
             print(f"Файл не найден: {path}. Создаём заглушку.")
             image = pygame.Surface((width, height), pygame.SRCALPHA)
             pygame.draw.rect(image, (100, 100, 100), (5, 5, width - 10, height - 10), border_radius=8)
-            pygame.draw.circle(image, (255, 255, 255), (15, 15), 5)  # Глазик
+            pygame.draw.circle(image, (255, 255, 255), (15, 15), 5)
         return pygame.transform.scale(image, (width, height))
 
     def load_all(self):
@@ -54,7 +55,7 @@ class AssetLoader:
     def get(self, name):
         """Возвращает спрайт по имени"""
         return self.sprites.get(name, None)
-    
+
 
 class Player:
     def __init__(self, x, y, assets):
@@ -68,7 +69,7 @@ class Player:
         self.max_jumps = 2
         self.direction = "right"
         self.assets = assets
-        
+
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def move(self, direction):
@@ -122,7 +123,7 @@ class Player:
 
     def draw(self, surface):
         surface.blit(self.flipped_sprite, (self.x, self.y))
-    
+
     @property
     def center(self):
         return self.x + self.width // 2, self.y + self.height // 2
@@ -132,31 +133,31 @@ class Projectile:
     def __init__(self, x, y, target_pos):
         self.rect = pygame.Rect(x, y, 12, 12)
 
-        direction = pygame.math.Vector2(target_pos[0]-x, 
-                                        target_pos[1]-y) 
+        direction = pygame.math.Vector2(target_pos[0] - x,
+                                        target_pos[1] - y)
 
         if direction.length() > 0:
             direction = direction.normalize()
             self.velocity = direction * PROJECTILE_SPEED
         else:
-            self.velocity = 0 #pygame.math.Vector2(0, 0)
-        
+            self.velocity = 0
+
         self.active = True
-        self.stuck = False # Снаряд застрял в земле
+        self.stuck = False
         self.hit_surface = False
 
         self.gravity = 0.6
-    
+
     def update(self):
         if self.stuck or not self.active:
             return
-        
-    # Обычный полёт
+
+        # Обычный полёт
         if not self.hit_surface:
             self.rect.x += self.velocity.x
             self.rect.y += self.velocity.y
-            # когда снаряд удаояется о стену
 
+            # когда снаряд ударяется о стену
             # левая стена
             if self.rect.left <= 0:
                 self.velocity.x = self.velocity.x * -0.4
@@ -174,7 +175,8 @@ class Projectile:
                 self.rect.bottom = GROUND_Y
                 self.stuck = True
                 self.velocity.y = 0
-    # падение после рекошета
+
+        # Падение после рикошета
         if self.hit_surface and not self.stuck:
             self.velocity.y += self.gravity
             self.rect.x += self.velocity.x
@@ -191,30 +193,27 @@ class Projectile:
                 self.stuck = True
                 self.velocity.y = 0
 
-    
     def draw(self, surface):
-        
         if self.active:
             pygame.draw.rect(surface, RED, self.rect)
 
     def is_close_to_player(self, player_rect):
         if not self.stuck:
             return False
-        
+
         picup_zone = player_rect.inflate(PICUP_DISTANCE, PICUP_DISTANCE)
         return self.rect.colliderect(picup_zone)
-    
+
     def reset(self):
         self.active = False
         self.stuck = False
         self.hit_surface = False
         self.velocity = 0
 
+
 asset_loader = AssetLoader()
 player = Player(x=100, y=GROUND_Y - PLAYER_SIZE, assets=asset_loader)
 
-#enemy = Enemy(x=0, y=SCREEN_HEIGHT - ENEMY_HEIGHT - 100)
-#enemy_direction = "right"
 enemies = []
 spawn_timer = 0
 projectiles = []
@@ -223,19 +222,21 @@ clock = pygame.time.Clock()
 running = True
 game_over = False
 
+
 def check_collisions(rect1, rect2):
     return rect1.colliderect(rect2)
 
+
 while running:
-    clock.tick(60)  
+    clock.tick(60)
     screen.fill(WHITE)
     pygame.draw.line(screen, RED, (0, GROUND_Y), (SCREEN_WIDTH, GROUND_Y), 3)
 
-# БЛОК ЭВЕНТОВ (СОБЫТИЙ)
+    # БЛОК ЭВЕНТОВ (СОБЫТИЙ)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # Проверка нажатия пробела и кнопки R
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not game_over:
                 player.jump()
@@ -245,40 +246,34 @@ while running:
                 player.y = GROUND_Y - PLAYER_SIZE
                 player.vel_y = 0
                 player.is_jumping = False
-                enemy.x = 0
-                enemy.y = SCREEN_HEIGHT - ENEMY_HEIGHT - 100
-                enemy_direction = "right"
-        # Проверка нажатия левой кнопки мыши
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                enemies.clear()
+                projectiles.clear()
+                spawn_timer = 0
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
             active_count = len([p for p in projectiles if p.active])
-            
+
             if active_count < MAX_COUNT_PROJECTILES:
                 px, py = player.center
                 mouse_pos = pygame.mouse.get_pos()
                 projectile = Projectile(px, py, mouse_pos)
                 projectiles.append(projectile)
+
     # Проверка нажатия клавиш управления
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        player.move("left")
-    if keys[pygame.K_RIGHT]:
-        player.move("right")
- # Отрисовка гравитациии и передвижения
+    if not game_over:
+        if keys[pygame.K_LEFT]:
+            player.move("left")
+        if keys[pygame.K_RIGHT]:
+            player.move("right")
+
+    # Обновление игрока
     if not game_over:
         player.apply_gravity()
         player.update_animation()
-        
-        # if enemy.x >= SCREEN_WIDTH - ENEMY_WIDTH:
-        #         enemy_direction = "left"
-        # elif enemy.x <= 0:
-        #     enemy_direction = "right"
-        
-        # enemy.move(enemy_direction)
-        # enemy.position_update()
 
-        # if check_collisions(player.rect, enemy.rect) and not DEBUG:
-        #     game_over = True
     player_rect = player.rect
+
     # Управление снарядами
     for projectile in projectiles:
         projectile.update()
@@ -288,6 +283,7 @@ while running:
 
     projectiles = [p for p in projectiles if p.active]
 
+    # Спавн врагов
     spawn_timer += 1
     if spawn_timer >= SPAWN_DELAY:
         spawn_timer = 0
@@ -303,24 +299,26 @@ while running:
         new_enemy = Enemy(en_x, en_y)
         enemies.append(new_enemy)
 
+    # Обновление врагов
     for enemy in enemies[:]:
         enemy.position_update(player.x)
         enemy.draw(screen)
 
         if check_collisions(player.rect, enemy.rect) and not DEBUG:
-             game_over = True
+            game_over = True
 
         for projectile in projectiles:
             if check_collisions(projectile.rect, enemy.rect):
                 projectile.reset()
                 enemies.remove(enemy)
+                break
 
-        if enemy.is_off_screen():
+        if enemy in enemies and enemy.is_off_screen():
             enemies.remove(enemy)
 
     player.draw(screen)
-    #enemy.draw(screen)
 
+    # Экран Game Over
     if game_over:
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
@@ -329,12 +327,17 @@ while running:
         font = pygame.font.Font(None, 74)
         game_over_text = font.render("ИГРА ОКОНЧЕНА!", True, WHITE)
 
-        text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT //2))
+        text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(game_over_text, text_rect)
+
+        font_small = pygame.font.Font(None, 36)
+        restart_text = font_small.render("Нажми R для рестарта", True, WHITE)
+        restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        screen.blit(restart_text, restart_rect)
 
     active_count = len([p for p in projectiles if p.active])
     font = pygame.font.Font(None, 36)
-    count_text = font.render(f"Снарядов: {active_count}", True, (0,0,255))
+    count_text = font.render(f"Снарядов: {active_count}", True, (0, 0, 255))
     screen.blit(count_text, (10, 10))
-    
+
     pygame.display.flip()
